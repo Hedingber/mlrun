@@ -467,13 +467,19 @@ def get_files():
 
     _, filename = path.split(path)
 
+    access_key = request.headers.get('X-V3io-Session-Key', 'NOT_FOUND')
+    logger.info('Check out my cool header - get files', access_key=access_key)
+    secrets = {
+        'V3IO_ACCESS_KEY': access_key,
+    }
+
     path = get_obj_path(schema, path, user=user)
     if not path:
         return json_error(HTTPStatus.NOT_FOUND, path=path,
                           err='illegal path prefix or schema')
 
     try:
-        body = get_object(path, size, offset)
+        body = get_object(path, secrets, size, offset)
     except FileNotFoundError as e:
         return json_error(HTTPStatus.NOT_FOUND, path=path, err=str(e))
     if body is None:
@@ -495,6 +501,12 @@ def get_filestat():
     path = request.args.get('path', '')
     user = request.args.get('user', '')
 
+    access_key = request.headers.get('X-V3io-Session-Key', 'NOT_FOUND')
+    logger.info('Check out my cool header - get filestat', access_key=access_key)
+    secrets = {
+        'V3IO_ACCESS_KEY': access_key,
+    }
+
     _, filename = path.split(path)
 
     path = get_obj_path(schema, path, user=user)
@@ -503,7 +515,7 @@ def get_filestat():
                           err='illegal path prefix or schema')
 
     try:
-        stat = get_object_stat(path)
+        stat = get_object_stat(path, secrets)
     except FileNotFoundError as e:
         return json_error(HTTPStatus.NOT_FOUND, path=path, err=str(e))
 
@@ -732,6 +744,9 @@ def list_artifacts():
     project = request.args.get('project', config.default_project)
     tag = request.args.get('tag') or None
     labels = request.args.getlist('label')
+
+    access_key = request.headers.get('X-V3io-Session-Key', 'NOT_FOUND')
+    logger.info('Check out my cool header - list artifacts', access_key=access_key)
 
     artifacts = _db.list_artifacts(name, project, tag, labels)
     return jsonify(ok=True, artifacts=artifacts)
