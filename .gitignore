@@ -17,3 +17,4 @@ model.txt
 result*.html
 tests/test_results/
 .vscode/
+.idea/
