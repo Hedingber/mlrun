@@ -468,7 +468,6 @@ def get_files():
     _, filename = path.split(path)
 
     access_key = request.headers.get('X-V3io-Session-Key', 'NOT_FOUND')
-    logger.info('Check out my cool header - get files', access_key=access_key)
     secrets = {
         'V3IO_ACCESS_KEY': access_key,
     }
@@ -502,7 +501,6 @@ def get_filestat():
     user = request.args.get('user', '')
 
     access_key = request.headers.get('X-V3io-Session-Key', 'NOT_FOUND')
-    logger.info('Check out my cool header - get filestat', access_key=access_key)
     secrets = {
         'V3IO_ACCESS_KEY': access_key,
     }
@@ -744,9 +742,6 @@ def list_artifacts():
     project = request.args.get('project', config.default_project)
     tag = request.args.get('tag') or None
     labels = request.args.getlist('label')
-
-    access_key = request.headers.get('X-V3io-Session-Key', 'NOT_FOUND')
-    logger.info('Check out my cool header - list artifacts', access_key=access_key)
 
     artifacts = _db.list_artifacts(name, project, tag, labels)
     return jsonify(ok=True, artifacts=artifacts)
