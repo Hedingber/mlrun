@@ -13,13 +13,17 @@
 # limitations under the License.
 ARG CUDA_VER=10.1
 
-FROM nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04
+FROM nvidia/cuda:${CUDA_VER}-cudnn7-devel-ubuntu18.04
 
-LABEL maintainer="yashab@iguazio.com"
-LABEL org="iguazio.com"
+LABEL maintainer="yashab@iguazio.com" \
+      org="iguazio.com"
 
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-ENV PATH /opt/conda/bin:$PATH
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PATH=/opt/conda/bin:$PATH \
+    SSL_CERT_DIR=/etc/ssl/certs \
+    OMPI_ALLOW_RUN_AS_ROOT=1 \
+    OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 
 # Set default shell to /bin/bash
 SHELL ["/bin/bash", "-cu"]
@@ -41,8 +45,8 @@ RUN apt-get update && \
         libglib2.0-0 \
         libibverbs1\
         libjpeg-dev \
-        libnvinfer-plugin6=6.0.1-1+cuda10.1 \
-        libnvinfer6=6.0.1-1+cuda10.1 \
+        libnvinfer-plugin6=6.0.1-1+cuda${CUDA_VER} \
+        libnvinfer6=6.0.1-1+cuda${CUDA_VER} \
         libpng-dev \
         librdmacm1 \
         libreadline-dev \
@@ -60,8 +64,6 @@ RUN apt-get update && \
     apt clean && \
     apt autoremove && \
     rm -rf /var/lib/apt/lists/*
-
-ENV SSL_CERT_DIR /etc/ssl/certs
 
 RUN mkdir -p /var/run/sshd && \
     # Allow OpenSSH to talk to containers without asking for confirmation
@@ -83,9 +85,6 @@ RUN mkdir /tmp/openmpi && \
     ldconfig && \
     rm -rf /tmp/openmpi    
 
-ENV OMPI_ALLOW_RUN_AS_ROOT=1
-ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-
 RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/installconda.sh && \
     /bin/bash ~/installconda.sh -b -p /opt/conda && \
     rm ~/installconda.sh && \
@@ -99,7 +98,7 @@ RUN conda config --add channels conda-forge && \
     conda install -n base \
         bokeh \
         cmake \
-        cudatoolkit=10.1 \
+        cudatoolkit=${CUDA_VER} \
         cython \
         fsspec \
         lifelines \
@@ -121,9 +120,9 @@ RUN conda config --add channels conda-forge && \
 RUN conda install -n base -c rapidsai -c nvidia \
     -c anaconda -c conda-forge -c defaults rapids=0.12 python=3.7
 
-RUN conda install -n base -c pytorch pytorch torchvision cudatoolkit=10.1
+RUN conda install -n base -c pytorch pytorch torchvision cudatoolkit=${CUDA_VER}
 
-RUN ldconfig /usr/local/cuda-10.1/targets/x86_64-linux/lib/stubs && \
+RUN ldconfig /usr/local/cuda-${CUDA_VER}/targets/x86_64-linux/lib/stubs && \
     HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 \
         python -m pip install horovod && \
     ldconfig
