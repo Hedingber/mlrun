@@ -690,7 +690,7 @@ class MLClientCtx(object):
         if commit or self._autocommit:
             self._commit = message
             if self._rundb:
-                pass
+                logger.warning("Skipping storing run - HACK")
                 # self._rundb.store_run(
                 #     self.to_dict(), self._uid, self.project, iter=self._iteration
                 # )
