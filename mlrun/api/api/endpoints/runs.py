@@ -51,11 +51,11 @@ async def update_run(
     except ValueError:
         log_and_raise(HTTPStatus.BAD_REQUEST.value, reason="bad JSON body")
 
-    logger.debug(data)
-    await run_in_threadpool(
-        get_db().update_run, db_session, data, uid, project, iter=iter
-    )
-    logger.info("update run: {}".format(data))
+    logger.debug("Updating run", data=data)
+    # await run_in_threadpool(
+    #     get_db().update_run, db_session, data, uid, project, iter=iter
+    # )
+    logger.info("Run updated", data=data)
     return {}
 
 
