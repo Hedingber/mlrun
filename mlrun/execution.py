@@ -690,9 +690,10 @@ class MLClientCtx(object):
         if commit or self._autocommit:
             self._commit = message
             if self._rundb:
-                self._rundb.store_run(
-                    self.to_dict(), self._uid, self.project, iter=self._iteration
-                )
+                pass
+                # self._rundb.store_run(
+                #     self.to_dict(), self._uid, self.project, iter=self._iteration
+                # )
 
 
 def _cast_result(value):
