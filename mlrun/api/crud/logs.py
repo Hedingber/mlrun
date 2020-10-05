@@ -58,15 +58,15 @@ class Logs:
                             if new_status == "failed":
                                 update_in(data, "status.state", "error")
                                 update_in(data, "status.error", "error, check logs")
-                                get_db().store_run(db_session, data, uid, project)
+                                # get_db().store_run(db_session, data, uid, project)
                             if new_status == "succeeded":
                                 update_in(data, "status.state", "completed")
-                                get_db().store_run(db_session, data, uid, project)
+                                # get_db().store_run(db_session, data, uid, project)
                     pod_status = new_status
                 elif pod_status == "running":
                     update_in(data, "status.state", "error")
                     update_in(data, "status.error", "pod not found, maybe terminated")
-                    get_db().store_run(db_session, data, uid, project)
+                    # get_db().store_run(db_session, data, uid, project)
                     pod_status = "failed"
         return out, pod_status
 
