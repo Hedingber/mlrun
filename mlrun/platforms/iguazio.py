@@ -62,7 +62,7 @@ def mount_v3io(
         from kubernetes import client as k8s_client
 
         vol = v3io_to_vol(name, remote, access_key, user, secret=secret)
-        task.add_volume(vol).add_volume_mount(
+        task = task.add_volume(vol).add_volume_mount(
             k8s_client.V1VolumeMount(mount_path=mount_path, name=name)
         )
 
