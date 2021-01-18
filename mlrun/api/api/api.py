@@ -7,6 +7,7 @@ from mlrun.api.api.endpoints import (
     functions,
     healthz,
     logs,
+    monitoring,
     pipelines,
     projects,
     runs,
@@ -30,6 +31,9 @@ api_router.include_router(
 api_router.include_router(healthz.router, tags=["healthz"])
 api_router.include_router(
     logs.router, tags=["logs"], dependencies=[Depends(deps.AuthVerifier)]
+)
+api_router.include_router(
+    monitoring.router, tags=["monitoring"], dependencies=[Depends(deps.AuthVerifier)]
 )
 api_router.include_router(
     pipelines.router, tags=["pipelines"], dependencies=[Depends(deps.AuthVerifier)]
