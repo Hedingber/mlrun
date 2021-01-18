@@ -1,7 +1,7 @@
 import fastapi
 import datetime
 import linecache
-
+import pathlib
 
 import mlrun
 import mlrun.api.utils.periodic
@@ -21,7 +21,10 @@ def enable_memory_monitoring(
 
 def _run_memory_monitoring():
     now = datetime.datetime.utcnow().isoformat()
-    filename = f"memory-snapshot-{now}"
+    snapshots_dir = pathlib.Path("/mlrun/db/memory-snapshots")
+    if not snapshots_dir.exists():
+        snapshots_dir.mkdir()
+    filename = f"{str(snapshots_dir)}/memory-snapshot-{now}"
     snapshot = tracemalloc.take_snapshot()
     snapshot.dump(filename)
     display_top(snapshot)
