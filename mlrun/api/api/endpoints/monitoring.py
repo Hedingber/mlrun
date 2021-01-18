@@ -31,19 +31,19 @@ def _run_memory_monitoring():
     filename = f"{str(snapshots_dir)}/memory-snapshot-{now}"
     snapshot = tracemalloc.take_snapshot()
     snapshot.dump(filename)
-    display_top(snapshot)
+    display_top(now, snapshot)
 
 
-def display_top(snapshot, key_type="lineno", limit=10):
-    snapshot = snapshot.filter_traces(
-        (
-            tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
-            tracemalloc.Filter(False, "<unknown>"),
-        )
-    )
+def display_top(now, snapshot, key_type="lineno", limit=10):
+    # snapshot = snapshot.filter_traces(
+    #     (
+    #         tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
+    #         tracemalloc.Filter(False, "<unknown>"),
+    #     )
+    # )
     top_stats = snapshot.statistics(key_type)
 
-    print("Top %s lines" % limit)
+    print(f"Top {limit} lines - {now}")
     for index, stat in enumerate(top_stats[:limit], 1):
         frame = stat.traceback[0]
         print(
