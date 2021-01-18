@@ -1,3 +1,5 @@
+import asyncio
+import concurrent.futures
 import uuid
 import gc
 
@@ -115,6 +117,8 @@ async def log_request_response(request: fastapi.Request, call_next):
 @app.on_event("startup")
 async def startup_event():
     logger.info("configuration dump", dumped_config=config.dump_yaml())
+    loop = asyncio.get_running_loop()
+    loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=5))
 
     await _initialize_singletons()
 
@@ -150,7 +154,7 @@ def _start_periodic_runs_monitoring():
         run_function_periodically(interval, _monitor_runs)
 
 
-async def _monitor_runs():
+def _monitor_runs():
     db_session = create_session()
     try:
         for kind in RuntimeKinds.runtime_with_handlers():
