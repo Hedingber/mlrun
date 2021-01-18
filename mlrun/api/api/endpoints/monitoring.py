@@ -32,6 +32,7 @@ def _run_memory_monitoring():
     snapshot = tracemalloc.take_snapshot()
     snapshot.dump(filename)
     display_top(now, snapshot)
+    display_top(now, snapshot, key_type="traceback")
 
 
 def display_top(now, snapshot, key_type="lineno", limit=10):
@@ -43,7 +44,7 @@ def display_top(now, snapshot, key_type="lineno", limit=10):
     # )
     top_stats = snapshot.statistics(key_type)
 
-    print(f"Top {limit} lines - {now}")
+    print(f"Top {limit} lines by {key_type} - {now}")
     for index, stat in enumerate(top_stats[:limit], 1):
         frame = stat.traceback[0]
         print(
