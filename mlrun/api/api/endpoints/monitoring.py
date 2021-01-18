@@ -32,16 +32,23 @@ def _run_memory_monitoring():
     snapshot = tracemalloc.take_snapshot()
     snapshot.dump(filename)
     display_top(snapshot, key_type="lineno")
-    display_top(snapshot, key_type="traceback")
     display_top(snapshot, key_type="filename")
+    display_top(snapshot, key_type="traceback")
+    display_top(snapshot, key_type="traceback", limit=1)
 
 
 def display_top(snapshot, key_type="lineno", limit=10):
     top_stats = snapshot.statistics(key_type)
     now = datetime.datetime.utcnow().isoformat()
     print(f"Top {limit} lines by {key_type} - {now}")
-    for stat in top_stats[:10]:
-        print(stat)
+    if limit == 1 and key_type == "traceback":
+        stat = top_stats[0]
+        print("%s memory blocks: %.1f KiB" % (stat.count, stat.size / 1024))
+        for line in stat.traceback.format():
+            print(line)
+    else:
+        for stat in top_stats[:10]:
+            print(stat)
 
 
 def display_top_2(snapshot, key_type="lineno", limit=10):
