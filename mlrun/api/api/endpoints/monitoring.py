@@ -33,6 +33,7 @@ def _run_memory_monitoring():
     snapshot.dump(filename)
     display_top(snapshot)
     display_top(snapshot, key_type="traceback")
+    display_top(snapshot, key_type="filename")
 
 
 def display_top(snapshot, key_type="lineno", limit=10):
