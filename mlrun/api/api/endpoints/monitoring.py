@@ -81,11 +81,6 @@ def _generate_memory_sample(
                 )
 
                 if create_graph:
-                    logger.debug(
-                        "Creating reference graph",
-                        object_index=object_index,
-                        max_depth=max_depth,
-                    )
                     _create_object_ref_graph(
                         object_type,
                         requested_objects[object_index],
@@ -116,9 +111,16 @@ def _create_object_ref_graph(object_type, object_, object_index, max_depth=3):
     object_ref_graphs_dir = pathlib.Path("/mlrun/db/object-ref-graphs")
     if not object_ref_graphs_dir.exists():
         object_ref_graphs_dir.mkdir()
+    filepath = str(object_ref_graphs_dir / filename)
+    logger.debug(
+        "Creating reference graph",
+        object_index=object_index,
+        max_depth=max_depth,
+        filepath=filepath,
+    )
     objgraph.show_backrefs(
         object_,
-        filename=str(object_ref_graphs_dir / filename),
+        filename=filepath,
         refcounts=True,
         max_depth=max_depth,
     )
