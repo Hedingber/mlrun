@@ -12,8 +12,8 @@ router = fastapi.APIRouter()
 
 @router.post("/monitoring/memory/enable")
 def enable_memory_monitoring(
-        interval: int = mlrun.mlconf.httpdb.monitoring.memory.interval,
-        number_of_frames: int = mlrun.mlconf.httpdb.monitoring.memory.number_of_frames,
+    interval: int = mlrun.mlconf.httpdb.monitoring.memory.interval,
+    number_of_frames: int = mlrun.mlconf.httpdb.monitoring.memory.number_of_frames,
 ):
     tracemalloc.start(number_of_frames)
     mlrun.api.utils.periodic.run_function_periodically(interval, _run_memory_monitoring)
@@ -21,27 +21,31 @@ def enable_memory_monitoring(
 
 def _run_memory_monitoring():
     now = datetime.datetime.utcnow().isoformat()
-    filename = f'memory-snapshot-{now}'
+    filename = f"memory-snapshot-{now}"
     snapshot = tracemalloc.take_snapshot()
     snapshot.dump(filename)
     display_top(snapshot)
 
 
-def display_top(snapshot, key_type='lineno', limit=10):
-    snapshot = snapshot.filter_traces((
-        tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
-        tracemalloc.Filter(False, "<unknown>"),
-    ))
+def display_top(snapshot, key_type="lineno", limit=10):
+    snapshot = snapshot.filter_traces(
+        (
+            tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
+            tracemalloc.Filter(False, "<unknown>"),
+        )
+    )
     top_stats = snapshot.statistics(key_type)
 
     print("Top %s lines" % limit)
     for index, stat in enumerate(top_stats[:limit], 1):
         frame = stat.traceback[0]
-        print("#%s: %s:%s: %.1f KiB"
-              % (index, frame.filename, frame.lineno, stat.size / 1024))
+        print(
+            "#%s: %s:%s: %.1f KiB"
+            % (index, frame.filename, frame.lineno, stat.size / 1024)
+        )
         line = linecache.getline(frame.filename, frame.lineno).strip()
         if line:
-            print('    %s' % line)
+            print("    %s" % line)
 
     other = top_stats[limit:]
     if other:
