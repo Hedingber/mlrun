@@ -150,7 +150,7 @@ def _start_periodic_runs_monitoring():
         run_function_periodically(interval, _monitor_runs)
 
 
-def _monitor_runs():
+async def _monitor_runs():
     db_session = create_session()
     try:
         for kind in RuntimeKinds.runtime_with_handlers():
