@@ -39,16 +39,15 @@ def _run_memory_monitoring():
 
 def display_top(snapshot, key_type="lineno", limit=10):
     top_stats = snapshot.statistics(key_type)
-    now = datetime.datetime.utcnow().isoformat()
-    print(f"Top {limit} lines by {key_type} - {now}")
     if limit == 1 and key_type == "traceback":
         stat = top_stats[0]
-        print("%s memory blocks: %.1f KiB" % (stat.count, stat.size / 1024))
+        logger.debug("Printing largest memory block", key_type=key_type, limit=limit, count=stat.count, size=stat.size)
         for line in stat.traceback.format():
-            print(line)
+            logger.debug(line)
     else:
+        logger.debug("Printing top memory blocks", key_type=key_type, limit=limit)
         for stat in top_stats[:10]:
-            print(stat)
+            logger.debug(str(stat))
 
 
 def display_top_2(snapshot, key_type="lineno", limit=10):

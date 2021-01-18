@@ -1,4 +1,5 @@
 import uuid
+import gc
 
 import fastapi
 import fastapi.concurrency
@@ -161,6 +162,8 @@ def _monitor_runs():
                     "Failed monitoring runs. Ignoring", exc=str(exc), kind=kind
                 )
     finally:
+        logger.info("Running garbage collection", count=gc.get_count(), stats=gc.get_stats())
+        gc.collect()
         close_session(db_session)
 
 
