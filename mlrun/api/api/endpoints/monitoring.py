@@ -21,10 +21,16 @@ async def enable_memory_monitoring(
     interval: int = mlrun.mlconf.httpdb.monitoring.memory.interval,
     number_of_frames: int = mlrun.mlconf.httpdb.monitoring.memory.number_of_frames,
 ):
-    logger.info("Enabling memory monitoring", interval=interval, number_of_frames=number_of_frames)
+    logger.info(
+        "Enabling memory monitoring",
+        interval=interval,
+        number_of_frames=number_of_frames,
+    )
     tracemalloc.start(number_of_frames)
     # mlrun.api.utils.periodic.run_function_periodically(interval, _run_memory_monitoring)
-    mlrun.api.utils.periodic.run_function_periodically(interval, _generate_memory_sample)
+    mlrun.api.utils.periodic.run_function_periodically(
+        interval, _generate_memory_sample
+    )
 
 
 @router.post("/monitoring/memory/sample")
@@ -35,7 +41,9 @@ def sample_memory_monitoring(
     create_graph: bool = False,
     max_depth: int = 3,
 ):
-    _generate_memory_sample(object_type, start_index, sample_size, create_graph, max_depth)
+    _generate_memory_sample(
+        object_type, start_index, sample_size, create_graph, max_depth
+    )
 
 
 def _generate_memory_sample(
@@ -47,7 +55,9 @@ def _generate_memory_sample(
 ):
     logger.debug("Generating memory sample")
     gc.collect()
-    if object_type is not None and (start_index is not None or (sample_size is not None and sample_size > 0)):
+    if object_type is not None and (
+        start_index is not None or (sample_size is not None and sample_size > 0)
+    ):
 
         requested_objects = objgraph.by_type(object_type)
         sample_size = sample_size or 1
@@ -59,42 +69,66 @@ def _generate_memory_sample(
         if start_index < len(requested_objects):
 
             # Iterate until 'sample_size' or the end of the list is reached
-            for object_index in range(start_index, min(start_index + sample_size, len(requested_objects))):
-                logger.debug('Requested object',
-                                   object_type=object_type,
-                                   object_index=object_index,
-                                   total_objects=len(requested_objects),
-                                   requested_object=str(requested_objects[object_index])[:10000])
+            for object_index in range(
+                start_index, min(start_index + sample_size, len(requested_objects))
+            ):
+                logger.debug(
+                    "Requested object",
+                    object_type=object_type,
+                    object_index=object_index,
+                    total_objects=len(requested_objects),
+                    requested_object=str(requested_objects[object_index])[:10000],
+                )
 
                 if create_graph:
-                    logger.debug('Creating reference graph',
-                                       object_index=object_index,
-                                       max_depth=max_depth)
-                    _create_object_ref_graph(object_type,
-                                                  requested_objects[object_index],
-                                                  object_index,
-                                                  max_depth=max_depth)
+                    logger.debug(
+                        "Creating reference graph",
+                        object_index=object_index,
+                        max_depth=max_depth,
+                    )
+                    _create_object_ref_graph(
+                        object_type,
+                        requested_objects[object_index],
+                        object_index,
+                        max_depth=max_depth,
+                    )
 
         else:
-            message = 'Object start index is invalid'
-            logger.warn(message,
-                               object_type=object_type,
-                               start_index=start_index,
-                               total_objects=len(requested_objects))
+            message = "Object start index is invalid"
+            logger.warn(
+                message,
+                object_type=object_type,
+                start_index=start_index,
+                total_objects=len(requested_objects),
+            )
             raise mlrun.errors.MLRunBadRequestError(message)
     else:
-        logger.debug('Most common objects', most_common=str(objgraph.most_common_types()))
+        logger.debug(
+            "Most common objects", most_common=str(objgraph.most_common_types())
+        )
 
 
 def _create_object_ref_graph(object_type, object_, object_index, max_depth=3):
-    datetime_string = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H_%M_%S')
-    filename = f'{object_type}-{object_index}-{datetime_string}.dot'
+    datetime_string = datetime.datetime.fromtimestamp(time.time()).strftime(
+        "%Y-%m-%d_%H_%M_%S"
+    )
+    filename = f"{object_type}-{object_index}-{datetime_string}.dot"
     object_ref_graphs_dir = pathlib.Path("/mlrun/db/object-ref-graphs")
-    objgraph.show_backrefs(object_, filename=str(object_ref_graphs_dir / filename), refcounts=True, max_depth=max_depth)
+    if not object_ref_graphs_dir.exists():
+        object_ref_graphs_dir.mkdir()
+    objgraph.show_backrefs(
+        object_,
+        filename=str(object_ref_graphs_dir / filename),
+        refcounts=True,
+        max_depth=max_depth,
+    )
 
 
 def _run_memory_monitoring():
-    logger.debug("Taking memory snapshot", tracemalloc_memory=tracemalloc.get_tracemalloc_memory())
+    logger.debug(
+        "Taking memory snapshot",
+        tracemalloc_memory=tracemalloc.get_tracemalloc_memory(),
+    )
     now = datetime.datetime.utcnow().isoformat()
     snapshots_dir = pathlib.Path("/mlrun/db/memory-snapshots")
     if not snapshots_dir.exists():
@@ -112,7 +146,13 @@ def display_top(snapshot, key_type="lineno", limit=10):
     top_stats = snapshot.statistics(key_type)
     if limit == 1 and key_type == "traceback":
         stat = top_stats[0]
-        logger.debug("Printing largest memory block", key_type=key_type, limit=limit, count=stat.count, size=stat.size)
+        logger.debug(
+            "Printing largest memory block",
+            key_type=key_type,
+            limit=limit,
+            count=stat.count,
+            size=stat.size,
+        )
         for line in stat.traceback.format():
             logger.debug(line)
     else:
