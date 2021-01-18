@@ -23,7 +23,7 @@ async def enable_memory_monitoring(
 
 
 def _run_memory_monitoring():
-    logger.info("Taking memory snapshot")
+    logger.debug("Taking memory snapshot", tracemalloc_memory=tracemalloc.get_tracemalloc_memory())
     now = datetime.datetime.utcnow().isoformat()
     snapshots_dir = pathlib.Path("/mlrun/db/memory-snapshots")
     if not snapshots_dir.exists():

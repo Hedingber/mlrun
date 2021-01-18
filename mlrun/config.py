@@ -88,7 +88,7 @@ default_config = {
             # allowed to be scheduled to run more then 2 times in X. Can't be less then 1 minute
             "min_allowed_interval": "10 minutes"
         },
-        "monitoring": {"memory": {"number_of_frames": 25, "interval": 30}},
+        "monitoring": {"memory": {"number_of_frames": 25, "interval": 120}},
     },
 }
 
