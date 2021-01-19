@@ -3,6 +3,7 @@ import concurrent.futures
 import uuid
 import gc
 import os
+import objgraph
 from pympler import tracker
 
 import fastapi
@@ -157,6 +158,7 @@ def _start_periodic_runs_monitoring():
 
 
 def _monitor_runs():
+    _print_common_objects()
     tr = tracker.SummaryTracker()
     db_session = create_session()
     try:
@@ -173,7 +175,16 @@ def _monitor_runs():
         #             thresholds=gc.get_threshold())
         # gc.collect()
         close_session(db_session)
+    _print_common_objects()
     tr.print_diff()
+
+
+def _print_common_objects():
+    logger.debug("Generating memory sample")
+    gc.collect()
+    logger.debug(
+        "Most common objects", most_common=str(objgraph.most_common_types())
+    )
 
 
 def _cleanup_runtimes():
