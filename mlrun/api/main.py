@@ -118,8 +118,8 @@ async def log_request_response(request: fastapi.Request, call_next):
 @app.on_event("startup")
 async def startup_event():
     logger.info("configuration dump", dumped_config=config.dump_yaml())
-    loop = asyncio.get_running_loop()
-    loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=min(32, os.cpu_count() + 4)))
+    # loop = asyncio.get_running_loop()
+    # loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=min(32, os.cpu_count() + 4)))
 
     await _initialize_singletons()
 
