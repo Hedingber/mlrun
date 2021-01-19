@@ -3,8 +3,11 @@ import concurrent.futures
 import uuid
 import gc
 import os
+import threading
 import objgraph
 from pympler import tracker
+from pympler import muppy
+from pympler import summary
 
 import fastapi
 import fastapi.concurrency
@@ -158,7 +161,7 @@ def _start_periodic_runs_monitoring():
 
 
 def _monitor_runs():
-    _print_common_objects()
+    _print_common_objects(True)
     tr = tracker.SummaryTracker()
     db_session = create_session()
     try:
@@ -179,12 +182,16 @@ def _monitor_runs():
     tr.print_diff()
 
 
-def _print_common_objects():
-    logger.debug("Generating memory sample")
+def _print_common_objects(before=False):
     gc.collect()
+    logger.debug("Generating memory sample", before=before, thread_count=threading.active_count())
     logger.debug(
         "Most common objects", most_common=str(objgraph.most_common_types())
     )
+    all_objects = muppy.get_objects()
+    sum1 = summary.summarize(all_objects)
+    summary.print_(sum1)
+
 
 
 def _cleanup_runtimes():
