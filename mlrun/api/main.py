@@ -3,6 +3,7 @@ import concurrent.futures
 import uuid
 import gc
 import os
+from pympler import tracker
 
 import fastapi
 import fastapi.concurrency
@@ -156,7 +157,7 @@ def _start_periodic_runs_monitoring():
 
 
 def _monitor_runs():
-    logger.debug("Starting runs monitoring")
+    tr = tracker.SummaryTracker()
     db_session = create_session()
     try:
         for kind in RuntimeKinds.runtime_with_handlers():
@@ -172,7 +173,7 @@ def _monitor_runs():
         #             thresholds=gc.get_threshold())
         # gc.collect()
         close_session(db_session)
-    logger.debug("Finished runs monitoring")
+    tr.print_diff()
 
 
 def _cleanup_runtimes():
