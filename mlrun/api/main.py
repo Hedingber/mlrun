@@ -156,6 +156,7 @@ def _start_periodic_runs_monitoring():
 
 
 def _monitor_runs():
+    logger.debug("Starting runs monitoring")
     db_session = create_session()
     try:
         for kind in RuntimeKinds.runtime_with_handlers():
@@ -167,10 +168,11 @@ def _monitor_runs():
                     "Failed monitoring runs. Ignoring", exc=str(exc), kind=kind
                 )
     finally:
-        logger.info("Running garbage collection", count=gc.get_count(), stats=gc.get_stats(),
-                    thresholds=gc.get_threshold())
-        gc.collect()
+        # logger.info("Running garbage collection", count=gc.get_count(), stats=gc.get_stats(),
+        #             thresholds=gc.get_threshold())
+        # gc.collect()
         close_session(db_session)
+    logger.debug("Finished runs monitoring")
 
 
 def _cleanup_runtimes():
