@@ -1,4 +1,9 @@
 import fastapi
+import threading
+import objgraph
+from pympler import tracker
+from pympler import muppy
+from pympler import summary
 import datetime
 import linecache
 import pathlib
@@ -44,6 +49,19 @@ def sample_memory_monitoring(
     _generate_memory_sample(
         object_type, start_index, sample_size, create_graph, max_depth
     )
+
+
+@router.post("/monitoring/memory/sample2")
+async def sample_memory_monitoring(
+):
+    gc.collect()
+    logger.debug("Generating memory sample by request", thread_count=threading.active_count())
+    logger.debug(
+        "Most common objects", most_common=str(objgraph.most_common_types())
+    )
+    all_objects = muppy.get_objects()
+    sum1 = summary.summarize(all_objects)
+    summary.print_(sum1)
 
 
 def _generate_memory_sample(
