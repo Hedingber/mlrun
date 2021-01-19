@@ -2,6 +2,7 @@ import asyncio
 import concurrent.futures
 import uuid
 import gc
+import os
 
 import fastapi
 import fastapi.concurrency
@@ -118,7 +119,7 @@ async def log_request_response(request: fastapi.Request, call_next):
 async def startup_event():
     logger.info("configuration dump", dumped_config=config.dump_yaml())
     loop = asyncio.get_running_loop()
-    loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=5))
+    loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=min(32, os.cpu_count() + 4)))
 
     await _initialize_singletons()
 
