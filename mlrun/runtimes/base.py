@@ -857,7 +857,7 @@ class BaseRuntimeHandler(ABC):
                     namespace=namespace,
                     exc=str(exc),
                 )
-        del project_run_uid_map
+        # del project_run_uid_map
 
     def _enrich_list_resources_response(
         self, response: Dict, namespace: str, label_selector: str = None
