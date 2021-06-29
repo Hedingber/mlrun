@@ -1383,6 +1383,7 @@ class HTTPRunDB(RunDBInterface):
         )
         path = f"projects/{project}/feature-sets/{name}/references/{reference}"
         error_message = f"Failed storing feature-set {project}/{name}"
+        logger.info("LET me see", fs_dict=feature_set, body=dict_to_json(feature_set))
         resp = self.api_call(
             "PUT", path, error_message, params=params, body=dict_to_json(feature_set)
         )
