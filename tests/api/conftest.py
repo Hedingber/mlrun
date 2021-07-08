@@ -22,10 +22,12 @@ def db() -> Generator:
     This fixture initialize the db singleton (so it will be accessible using mlrun.api.singletons.get_db()
     and generates a db session that can be used by the test
     """
-    db_file = NamedTemporaryFile(suffix="-mlrun.db")
+    db_file = NamedTemporaryFile(suffix="-mlrun.db", delete=False)
     logger.info(f"Created temp db file: {db_file.name}")
     config.httpdb.db_type = "sqldb"
-    dsn = f"sqlite:///{db_file.name}?check_same_thread=false"
+    old_db_file_name = "/var/folders/lt/hl6tl9vn7q326fxdt0l7xv5w0000gn/T/tmp_6vdo0bk-mlrun.db"
+    db_file_name = old_db_file_name or db_file.name
+    dsn = f"sqlite:///{db_file_name}?check_same_thread=false"
     config.httpdb.dsn = dsn
 
     # TODO: make it simpler - doesn't make sense to call 3 different functions to initialize the db
@@ -33,7 +35,7 @@ def db() -> Generator:
     _init_engine(config.httpdb.dsn)
 
     # forcing from scratch because we created an empty file for the db
-    init_data(from_scratch=True)
+    init_data(from_scratch=not old_db_file_name)
     initialize_db()
     initialize_project_member()
 

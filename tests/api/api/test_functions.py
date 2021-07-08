@@ -44,3 +44,27 @@ def test_build_status_pod_not_found(db: Session, client: TestClient):
         },
     )
     assert response.status_code == HTTPStatus.NOT_FOUND.value
+
+
+def test_store_function(db: Session, client: TestClient):
+    function = {
+        "kind": "job",
+        "metadata": {
+            "name": "function-name",
+            "project": "project-name",
+            "tag": "latest",
+        },
+        "status": {"state": mlrun.api.schemas.FunctionState.ready},
+    }
+    response = client.post(
+        f"/api/func/{function['metadata']['project']}/{function['metadata']['name']}",
+        json=function,
+    )
+    assert response.status_code == HTTPStatus.OK.value
+
+
+def test_get_function(db: Session, client: TestClient):
+    response = client.get(
+        f"/api/func/project-name/function-name",
+    )
+    assert response.status_code == HTTPStatus.OK.value

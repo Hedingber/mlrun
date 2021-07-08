@@ -1,7 +1,7 @@
 import enum
 
 
-class FunctionState(str, enum.Enum):
+class FunctionState:
     unknown = "unknown"
     ready = "ready"
     error = "error"  # represents deployment error

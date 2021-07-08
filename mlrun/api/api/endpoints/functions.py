@@ -46,6 +46,7 @@ async def store_function(
         log_and_raise(HTTPStatus.BAD_REQUEST.value, reason="bad JSON body")
 
     logger.debug(data)
+    data['status']['state'] = mlrun.api.schemas.FunctionState.ready
     logger.info("store function: project=%s, name=%s, tag=%s", project, name, tag)
     hash_key = await run_in_threadpool(
         get_db().store_function,
